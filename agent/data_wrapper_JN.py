@@ -7,7 +7,6 @@ from xml.dom import minidom
 import xml.etree.cElementTree as ET
 import re
 import socket
-import os
 
 
 # Creation of XML file
@@ -140,7 +139,7 @@ xml_file.write(format_xml(top))
 xml_file.close()
 
 
-# Finding the name server IP of the zone (copyright)
+# Finding the name server IP of the zone
 def get_authoritative_nameserver_data(zone): 
 	n = dns.name.from_text(zone)
 	default = dns.resolver.get_default_resolver()
