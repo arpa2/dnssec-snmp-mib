@@ -15,14 +15,21 @@ import xml.etree.cElementTree as ET
 global domains
 global nameserver
 global xmlfeed
+global zone_hint_file
+global xml_file
 
 xmlfeed={}
+domains = {}
+zone_hint_file="/opt/agent/zone_hint"
+xml_file = "/opt/agent/updated.xml"
 
-domains = { 'warsaw.practicum.os3.nl' : '145.100.104.62',
-	    'paris.derby.practicum.os3.nl' : '145.100.104.62',
-	    'derby.practicum.os3.nl' : '145.100.104.165',
-	    'berlin.warsaw.practicum.os3.nl' : '145.100.104.165'			
-        }
+def get_zone_hint(zone_hint_file):
+   with open(zone_hint_file) as f:
+    	for line in f:
+       		(zone_name, ns_ip) = line.split()
+       		domains[str(zone_name)] = ns_ip
+   return domains
+
 
 
 def get_authoritative_nameserver_data():
@@ -210,10 +217,9 @@ def minimum_ttl():
 
 
 # Update XML template with retrived values
-def editXML():  
-	filename='updated.xml'      
+def editXML(xml_file):  
         global xmlfeed
-        tree = ET.ElementTree(file=filename)
+        tree = ET.ElementTree(file=xml_file)
         root = tree.getroot()
 
         # get all zones
@@ -239,12 +245,13 @@ def editXML():
                                         if str(tmp[0]) == str(zones['name']) and str(tmp[1]) == str(tables['name']) and int(tmp[2]) == int(data.attrib['id']): 
                                                 data.text = xmlfeed[k]
                                                 tree = ET.ElementTree(root)
-                                                with open("updated.xml", "w") as f:
+                                                with open(xml_file, "w") as f:
                                                         tree.write(f)
 
 
 def main(domains):
 	global domain
+	domains = get_zone_hint(zone_hint_file)
 	for domain in sorted(domains.iterkeys()):
 		
 		print "\n##############" ,domain   
@@ -253,8 +260,9 @@ def main(domains):
 
 		if get_auth_data == "SERVFAIL":
 			servfail=2
+			global nameserver			
 			nameserver = domains[domain]					
-			global nameserver
+			#global nameserver
 			#get_auth_data = get_authoritative_nameserver_data()
 			#log('%s is authoritative for %s' % (authority, domain))
 			# TODO dnssecZoneGlobalAuthNSAddress -->  _dnssecZoneGlobalTable_10 (IpAddress)
@@ -348,7 +356,7 @@ def main(domains):
                 xmlfeed[str(domain + "_dnssecZoneGlobalTable_7")] = str(get_data_origin_dsmatch)
 
 
-		editXML()
+		editXML(xml_file)
 
 #stub to launch main
 if __name__ == '__main__':

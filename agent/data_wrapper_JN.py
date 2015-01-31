@@ -7,24 +7,44 @@ from xml.dom import minidom
 import xml.etree.cElementTree as ET
 import re
 import socket
+import os
 
+
+#ML added
+global zone_hint_file
+zone_hint_file="/opt/agent/zone_hint"
+global domains
+domains = {}
+global xml_filename
+global xml_updated_filename
+xml_filename="/opt/agent/data.xml"
+xml_updated_filename="/opt/agent/updated.xml"
 
 # Creation of XML file
-xml_file = open("data.xml", "w")
+xml_file = open(xml_filename, "w")
 
-
+#ML deleted
 # Zones declaration
-zone = ["warsaw.practicum.os3.nl", "derby.practicum.os3.nl", "berlin.warsaw.practicum.os3.nl", "paris.derby.practicum.os3.nl"]
+#zone = ["warsaw.practicum.os3.nl", "derby.practicum.os3.nl", "berlin.warsaw.practicum.os3.nl", "paris.derby.practicum.os3.nl"]
 
 
-
+# ML deleted
 # Hardcoded zones and IPs in case of SERVFAIL
-domains = { 'warsaw.practicum.os3.nl' : '145.100.104.62',
-            'paris.derby.practicum.os3.nl' : '145.100.104.62',
-            'derby.practicum.os3.nl' : '145.100.104.165',
-            'berlin.warsaw.practicum.os3.nl':'145.100.104.165'}
+#domains = { 'warsaw.practicum.os3.nl' : '145.100.104.62',
+#            'paris.derby.practicum.os3.nl' : '145.100.104.62',
+#            'derby.practicum.os3.nl' : '145.100.104.165',
+#            'berlin.warsaw.practicum.os3.nl':'145.100.104.165'}
 
 
+#ML created
+def get_zone_hint(zone_hint_file):
+   with open(zone_hint_file) as f:
+        for line in f:
+                (zone_name, ns_ip) = line.split()
+                domains[str(zone_name)] = ns_ip
+   return domains
+
+domains = get_zone_hint(zone_hint_file) 
 
 # Create top of document
 top = Element('ZoneList')
@@ -50,7 +70,8 @@ def create_zone(zone_name):
         new_zone = SubElement(top, 'Zone', name=zone_name, id=str(i))
         created_zones.append(new_zone)
 
-for zones in zone:
+#ML added
+for zones in sorted(domains.iterkeys()):
         create_zone(zones)
 
 
@@ -139,7 +160,7 @@ xml_file.write(format_xml(top))
 xml_file.close()
 
 
-# Finding the name server IP of the zone
+# Finding the name server IP of the zone (copyright)
 def get_authoritative_nameserver_data(zone): 
 	n = dns.name.from_text(zone)
 	default = dns.resolver.get_default_resolver()
@@ -273,7 +294,8 @@ def diff_serial(zones):
 values = {}
 
 # Construct dictionary
-for zones in zone:
+# ML added
+for zones in sorted(domains.iterkeys()):
         values[str(zones + "_dnssecZoneSigTable_2")] = str('"' + oldest_sig(zones) + '"')
         values[str(zones + "_dnssecZoneSigTable_3")] = str('"' + soa_sig_exp(zones) + '"')
         values[str(zones + "_dnssecZoneSigTable_4")] = str('"' + ns_sig_exp(zones) + '"')
@@ -283,15 +305,13 @@ for zones in zone:
 
 
 # Defining the filename variable
-filename='data.xml'
-
 
 
 # Update XML template with retrived values
-def editXML(filename):
+def editXML(xml_filename):
 	
 	global values
-	tree = ET.ElementTree(file=filename)
+	tree = ET.ElementTree(file=xml_filename)
 	root = tree.getroot()
 
 	# get all zones
@@ -323,7 +343,7 @@ def editXML(filename):
 					#and str(tmp[1]) == str(tables['name']) and  int(tmp[2]) == int(data['id']):
 						data.text = values[k]
 						tree = ET.ElementTree(root)
-    	 					with open("updated.xml", "w") as f:
+    	 					with open(xml_updated_filename, "w") as f:
         						tree.write(f)
 
-editXML(filename)
+editXML(xml_filename)

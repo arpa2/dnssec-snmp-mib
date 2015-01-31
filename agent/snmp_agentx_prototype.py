@@ -205,8 +205,9 @@ dnssecZoneDiffTable = agent.Table(
 
 def UpdateSNMPObjs():
 	""" Function that does the actual data update. """
-
+	global i
 	global dnsseczonecount
+	filename='updated.xml'
 
 	LogMsg("Beginning data update.")
 	data = ""
@@ -216,11 +217,14 @@ def UpdateSNMPObjs():
 	msg = "Updating \"dnssecZoneCount\" ."
 
 	LogMsg("Loading data to feed the MIB")
-	tree = ET.ElementTree(file='updated.xml')
+	tree = ET.ElementTree(file=filename)
 	root = tree.getroot()
 
 	# get all zones
+	
+	counter=0	
 	for child_of_root in root:
+		counter += 1
         	zones = child_of_root.attrib
 
         	# build path for xpath query
@@ -230,22 +234,40 @@ def UpdateSNMPObjs():
         	# get all tables 
         	for table in tree.iterfind(path):
                 	tables=table.attrib
-
                 	# build path for xpath query 
                 	# Example: 'Zone[@name="os3.nl"]/table[@name="dnssecGlobalZoneTable"]/item/data' 
                 	path2= "Zone[@name=\"" + zones['name'] + "\"]/table[@name=\"" + tables['name'] + "\"]/item/data"
 
-			a = tables['name'] + "Row" + zones['id']
-                        b = tables['name'] + ".addRow([agent.OctetString(\"" + zones['name'] + "\")])"
+			if i == 1:
+                                x = tables['name'] + "Row" + zones['id']
+                                y = tables['name'] + ".addRow([agent.OctetString(\"" + zones['name'] + "\")])"
 
-                        # ReRegister table rows
-                        # Example: dnssecGlobalTableRow1=dnssecGlobalTable.addRow([agent.OctetString("os3.nl")])
+                                # Register table rows
+                                # Example: dnssecGlobalTableRow1=dnssecGlobalTable.addRow([agent.OctetString("os3.nl")])
 
-                        exec("%s = %s" % (a,b))
-                        msg = "Registering row " + a + ": " + b
-                        LogMsg(msg.format(data))
+                                exec("%s = %s" % (x,y))
+                                msg = "Registering row " + x + ": " + y
+                                LogMsg(msg.format(data))
 
-				
+                        else:
+				if counter == 1:	
+                                	x = tables['name'] + "Row" + zones['id']
+                                	y = tables['name'] + ".clear()"
+		
+					exec("%s = %s" % (x,y))
+                        	        msg = "Clearing row " + x + ": " + y
+                                	LogMsg(msg.format(data))
+
+
+                                x = tables['name'] + "Row" + zones['id']
+                                y = tables['name'] + ".addRow([agent.OctetString(\"" + zones['name'] + "\")])"
+
+                                # ReRegister table rows
+                                # Example: dnssecGlobalTableRow1=dnssecGlobalTable.addRow([agent.OctetString("os3.nl")])
+
+                                exec("%s = %s" % (x,y))
+                                msg = "Registering row " + x + ": " + y
+                                LogMsg(msg.format(data))
 
                 	# finally get the data for each table 
                 	# and corresponding table entries 
@@ -265,11 +287,13 @@ def UpdateSNMPObjsAsync():
 	# update is still in progress. However we'll make sure only one update
 	# thread is run at any time, even if the data update interval has been set
 	# too low.
+	global i
 	if threading.active_count() == 1:
 		LogMsg("Creating thread for UpdateSNMPObjs().")
 		t = threading.Thread(target=UpdateSNMPObjs, name="UpdateSNMPObjsThread")
 		t.daemon = True
 		t.start()
+		i += 1
 	else:
 		LogMsg("Data update still active, data update interval too low?")
 
@@ -282,6 +306,7 @@ except netsnmpagent.netsnmpAgentException as e:
 
 # Trigger initial data update.
 LogMsg("Doing initial call to UpdateSNMPObjsAsync().")
+i=0
 UpdateSNMPObjsAsync()
 
 # Install a signal handler that terminates our threading agent when CTRL-C is
