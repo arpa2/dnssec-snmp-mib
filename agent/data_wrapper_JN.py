@@ -291,9 +291,6 @@ for zones in sorted(domains.iterkeys()):
 
 
 
-# Defining the filename variable
-
-
 # Update XML template with retrived values
 def editXML(xml_filename):
 	
