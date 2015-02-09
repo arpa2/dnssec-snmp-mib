@@ -23,18 +23,6 @@ xml_updated_filename="/opt/agent/updated.xml"
 # Creation of XML file
 xml_file = open(xml_filename, "w")
 
-#ML deleted
-# Zones declaration
-#zone = ["warsaw.practicum.os3.nl", "derby.practicum.os3.nl", "berlin.warsaw.practicum.os3.nl", "paris.derby.practicum.os3.nl"]
-
-
-# ML deleted
-# Hardcoded zones and IPs in case of SERVFAIL
-#domains = { 'warsaw.practicum.os3.nl' : '145.100.104.62',
-#            'paris.derby.practicum.os3.nl' : '145.100.104.62',
-#            'derby.practicum.os3.nl' : '145.100.104.165',
-#            'berlin.warsaw.practicum.os3.nl':'145.100.104.165'}
-
 
 #ML created
 def get_zone_hint(zone_hint_file):
@@ -160,7 +148,7 @@ xml_file.write(format_xml(top))
 xml_file.close()
 
 
-# Finding the name server IP of the zone (copyright)
+# Finding the name server IP of the zone
 def get_authoritative_nameserver_data(zone): 
 	n = dns.name.from_text(zone)
 	default = dns.resolver.get_default_resolver()
@@ -294,7 +282,6 @@ def diff_serial(zones):
 values = {}
 
 # Construct dictionary
-# ML added
 for zones in sorted(domains.iterkeys()):
         values[str(zones + "_dnssecZoneSigTable_2")] = str('"' + oldest_sig(zones) + '"')
         values[str(zones + "_dnssecZoneSigTable_3")] = str('"' + soa_sig_exp(zones) + '"')
