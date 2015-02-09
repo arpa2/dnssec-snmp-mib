@@ -1,3 +1,7 @@
+# This is script retrieves the DNSSEC data from the zones defined in the zone_hint file.
+# This script must be run periodically. To that aim, one can use a cron job.
+# This script must always be run before data_wrapper_ML.py. data_wrapper_ML.py must always be run after data_wrapper_JN.py.
+
 #!/usr/bin/env python
 import dns.resolver
 import dns.zone
