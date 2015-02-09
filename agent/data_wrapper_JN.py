@@ -1,4 +1,7 @@
-# This is script retrieves the DNSSEC data from the zones defined in the zone_hint file.
+# This is script creates an XML template needed by the subagent.
+# It also retrieves DNSSEC data from the zones defined in the zone_hint file.
+# It retrieves DNSSEC data for the tables dnssecZoneSigTable and dnssecZoneDiffTable.
+# Data for tables dnssecZoneGlobalTable and dnssecZoneAuthNSTable are retrieved by data_wrapper_ML.py
 # This script must be run periodically. To that aim, one can use a cron job.
 # This script must always be run before data_wrapper_ML.py. data_wrapper_ML.py must always be run after data_wrapper_JN.py.
 
