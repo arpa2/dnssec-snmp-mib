@@ -5,31 +5,10 @@
 # Copyright (c) 2013 Pieter Hollants <pieter@hollants.com>
 # Licensed under the GNU Public License (GPL) version 3
 #
-
+# extended by Martin Leucht <martin.leucht@os3.nl> 
+# as an subagent prototype that serves
+# data for ARPA2-Experimental-DNSSEC-MIBv1 
 #
-# simple_agent.py demonstrates registering the various SNMP object types quite
-# nicely but uses an inferior control flow logic: the main loop blocks in
-# net-snmp's check_and_process() call until some event happens (eg. SNMP
-# requests need processing). Only then will data be updated, not inbetween. And
-# on the other hand, SNMP requests can not be handled while data is being
-# updated, which might take longer periods of time.
-#
-# This example agent uses a more real life-suitable approach by outsourcing the
-# data update process into a separate thread that gets woken up through an
-# SIGALRM handler at an configurable interval. This does only ensure periodic
-# data updates, it also makes sure that SNMP requests will always be replied to
-# in time.
-#
-# Note that this implementation does not address possible locking issues: if
-# a SNMP client's requests are processed while the data update thread is in the
-# midst of refreshing the SNMP objects, the client might receive partially
-# inconsistent data. 
-#
-# Use the included script run_threading_agent.sh to test this example.
-#
-# Alternatively, see the comment block in the head of simple_agent.py for
-# adaptable instructions how to run this example against a system-wide snmpd
-# instance.
 #
 
 import sys, os, signal, time
