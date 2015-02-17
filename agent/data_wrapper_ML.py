@@ -1,6 +1,13 @@
 #!/usr/bin/env python
-#TODO execute functions depending on dns.rcode.to_text(rcode) SERVFAIL --> requires to set NS fix for domain
-#  dnssecZoneGlobalServFail Indicates if a recurser/resolver can get NS record data of zone
+#
+# Author Martin Leucht <martin.leucht@os3.nl>
+#
+# This program performs several DNSSEC and  DNS checks
+# against DNS resolvers, DNS authoritative servers.
+# The retrieved values are written to an XML structured which are
+# fetched by an SNMP AgentX subagent
+# DNS zones (origin names) that are monitored need to be specified in a hint file.
+
 import sys
 import dns.query
 import dns.zone
