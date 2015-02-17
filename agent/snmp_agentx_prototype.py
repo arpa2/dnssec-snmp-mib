@@ -102,7 +102,7 @@ except netsnmpagent.netsnmpAgentException as e:
 	sys.exit(1)
 
 
-#### Edit ####
+################################ BEGIN Edit Martin Leucht################################
 
 # actual data we want to feed the MIB
 
@@ -287,6 +287,8 @@ except netsnmpagent.netsnmpAgentException as e:
 LogMsg("Doing initial call to UpdateSNMPObjsAsync().")
 i=0
 UpdateSNMPObjsAsync()
+
+################################ END Edit Martin Leucht################################
 
 # Install a signal handler that terminates our threading agent when CTRL-C is
 # pressed or a KILL signal is received
