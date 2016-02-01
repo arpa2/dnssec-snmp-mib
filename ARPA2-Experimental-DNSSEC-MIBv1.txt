@@ -17,12 +17,8 @@ arpa2experimentaldnssecMIBv1 MODULE-IDENTITY
 	LAST-UPDATED "201501271633Z"
 	ORGANIZATION "UvA SNE"
 	CONTACT-INFO
-			"Author: Martin Leucht
-			EMail: <martin.leucht@os3.nl>
-			
-      Author: Julien Nyczak
-      EMail: <julien.nyczak@os3.nl>
-      "
+	"Author: Martin Leucht
+	EMail: <martin.leucht@os3.nl>"
 
 	DESCRIPTION
 		"This file defines private DNSSEC MIB extensions 
